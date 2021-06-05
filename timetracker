@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+(
+# watch for changes inside terminal (can't be detected by xprop)
+while :
+do
+    echo
+    sleep 3
+done &
+# watch for changes of active window
+xprop -spy -root _NET_ACTIVE_WINDOW
+) |
+    while read -r; do
+        # program="$(basename "$(readlink -f "/proc/$(
+        #     pstree -lpA "$(xdotool getwindowfocus getwindowpid)" | tail -n 1 |
+        #         awk -F'---' '{print $NF}' | sed -re 's/[^0-9]//g'
+        #     )/exe")")"
+
+        # suppress errors when no window is focused / focused window has no pid
+        program="$(pstree -lpA "$(xdotool getwindowfocus getwindowpid 2> /dev/null)" 2> /dev/null |
+            tail -n 1 | awk -F'---' '{print $NF}' | sed -re 's/[^a-zA-Z]//g')"
+                    title="$(xdotool getwindowfocus getwindowname)"
+
+        # annoying exceptions
+        if [[ "$program" =~ "java" && "$title" =~ "Minecraft" ]]; then program="minecraft"; fi
+        if [[ "$program" == "" && "$title" =~ "Anki" ]]; then program="anki"; fi
+        if [[ "$program" =~ "gimp" ]]; then program="gimp"; fi
+        if [[ "$program" == "" && "$title" =~ "" ]]; then program="dwm"; fi
+        if [[ "$program" == "oosplash" ]]; then program="libreoffice"; fi
+        if [[ "$program" == "sofficebin" ]]; then program="libreoffice"; fi
+
+        # something unknown
+        if [[ "$program" == "" ]]; then
+            program="-";
+            echo "$title" >> /tmp/.timetracker-unknown
+        fi
+
+        # standby
+        xset q | grep "Monitor is On" > /dev/null || program="standby"
+
+        # slock
+        pgrep slock > /dev/null && program="slock"
+
+        if [[ "$program" != "$lastprogram" ]]; then
+            echo "$program"  | tr '[:upper:]' '[:lower:]'
+        fi
+        lastprogram="$program"
+    done
