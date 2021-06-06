@@ -30,6 +30,7 @@ xprop -spy -root _NET_ACTIVE_WINDOW
         if [[ "$program" == "" && "$title" =~ "Anki" ]]; then program="anki"; fi
         if [[ "$program" =~ "gimp" ]]; then program="gimp"; fi
         if [[ "$program" == "" && "$title" =~ "" ]]; then program="dwm"; fi
+        if [[ "$program" == "" && "$title" = "sxiv" ]]; then program="sxiv"; fi
         if [[ "$program" == "oosplash" ]]; then program="libreoffice"; fi
         if [[ "$program" == "sofficebin" ]]; then program="libreoffice"; fi
 
