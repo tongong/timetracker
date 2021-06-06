@@ -17,9 +17,13 @@ xprop -spy -root _NET_ACTIVE_WINDOW
         #     )/exe")")"
 
         # suppress errors when no window is focused / focused window has no pid
-        program="$(pstree -lpA "$(xdotool getwindowfocus getwindowpid 2> /dev/null)" 2> /dev/null |
-            tail -n 1 | awk -F'---' '{print $NF}' | sed -re 's/[^a-zA-Z]//g')"
-                    title="$(xdotool getwindowfocus getwindowname)"
+        program="$(pstree -lpA "$(xdotool getwindowfocus getwindowpid 2> \
+            /dev/null)" 2> /dev/null \
+            | tail -n 1 \
+            | awk -F'---' '{print $NF}' \
+            | sed -re 's/([{}]|`-|\s|\([0-9]+\))//g')"
+
+        title="$(xdotool getwindowfocus getwindowname)"
 
         # annoying exceptions
         if [[ "$program" =~ "java" && "$title" =~ "Minecraft" ]]; then program="minecraft"; fi
