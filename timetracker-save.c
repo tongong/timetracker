@@ -16,7 +16,6 @@
 
 /* returns path to data file; should be free()d */
 char * filelocation() {
-
     char *loc = NULL;
     char *xdg_data_home = getenv("XDG_DATA_HOME");
     if (xdg_data_home) {
@@ -29,7 +28,6 @@ char * filelocation() {
         strcpy(loc, xdg_home);
         strcpy(loc + strlen(xdg_home), FILENAME2);
     }
-
     return loc;
 }
 
@@ -64,7 +62,7 @@ struct program *programs = NULL;
 int programnum = 0; /* number of programs stored in the programs array */
 
 
-/* returns current time */
+/* returns current time (this does not make sense but it is convenient) */
 /* this function was created to be able to add programs/write data file from
  * inside and outside the while loop in main(); the current solution with many
  * global variables is rather dirty but it works */
@@ -117,13 +115,17 @@ time_t addprogram(_Bool forcewrite) {
 }
 
 
+/* cause getline() to throw error end return from main function */
+void exithandler(int dummy) {
+    fclose(stdin);
+}
+
+
 int main() {
     createdatadir();
 
-    /* ignore SIGINT and SIGTERM; only exit at the end of stdin */
-    /* i don't know if this is a terrible idea */
-    signal(SIGINT, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
+    signal(SIGINT, exithandler);
+    signal(SIGTERM, exithandler);
 
     /* ensures that no two timestamps in output file are identical */
     sleep(1);
@@ -149,7 +151,7 @@ int main() {
     free(line);
     addprogram(1);
 
-    /* is this successful or unsuccessful? the program is meant to operate in a
-     * loop and be quit by end of stdin */
+    /* is this successful or unsuccessful? the program is meant to operate in
+     * an infinite loop and be quit by sigterm */
     return 0;
 }
