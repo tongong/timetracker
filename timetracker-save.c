@@ -124,6 +124,7 @@ void exithandler(int dummy) {
 int main() {
     createdatadir();
 
+    signal(SIGHUP, exithandler);
     signal(SIGINT, exithandler);
     signal(SIGTERM, exithandler);
 
