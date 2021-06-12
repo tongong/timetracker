@@ -94,7 +94,7 @@ time_t addprogram(_Bool forcewrite) {
 
         if (writetime <= newtime || forcewrite) {
             /* write to data file */
-            char * loc = filelocation();
+            char *loc = filelocation();
             FILE *dataFile = fopen(loc, "a");;
             free(loc);
 
@@ -107,6 +107,7 @@ time_t addprogram(_Bool forcewrite) {
 
             /* reset everything */
             free(programs);
+            programs = NULL;
             programnum = 0;
             writetime = newtime + WRITE_INTERVAL;
         }
