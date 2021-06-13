@@ -10,7 +10,6 @@ import subprocess
 #   - average daily time for week/month/year
 #   - total time per program
 # - check if termgraph is installed
-# - align graphs of different sections
 # - add commandline arguments to just look at specific date or specific program
 
 # helper functions
@@ -79,7 +78,7 @@ for day in days:
     for program in days[day]:
         if program != "slock" and program != "standby":
             daySum += days[day][program]
-    tgIn += day + " " + timestring(daySum).rjust(5, " ") + "," + \
+    tgIn += day + "      " + timestring(daySum).rjust(5, " ") + "," + \
             str(daySum) + "\n"
 print(runExternal(["termgraph", "--label-before", "--no-values"], tgIn)[1:-2])
 print()
@@ -87,15 +86,12 @@ print()
 today = datetime.fromtimestamp(int(parts[0])).strftime("%Y-%m-%d")
 if today in days:
     printHeading("# today")
-    maxLen = 0 # maximum length of program names
-    for program in days[today]:
-        if len(program) > maxLen:
-            maxLen = len(program)
     tgIn = "" # termgraph input
     for program in sorted(days[today], key=lambda x: days[today][x],
             reverse=True):
         if days[today][program] >= 60:
-            tgIn += program.ljust(maxLen, " ") + " " + \
+            # 15 is enough space https://stackoverflow.com/questions/23534263/what-is-the-maximum-allowed-limit-on-the-length-of-a-process-name
+            tgIn += program.ljust(15, " ") + " " + \
                     timestring(days[today][program]).rjust(5, " ") + "," + \
                     str(days[today][program]) + "\n"
     print(runExternal(["termgraph", "--label-before", "--no-values"],
