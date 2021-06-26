@@ -35,10 +35,24 @@ make
 sudo make install
 ```
 
+
 ## usage
 ```sh
 timetracker | timetracker-save
 ```
+
+
+## configuration
+There are three things worth changing:
+
+- the `sleep ...` in `timetracker`: smaller number = higher refresh rate;
+  higher number = smaller resource consumption
+
+- the exceptions defined in `timetracker`
+
+- the `WRITE_INTERVAL` in `timetracker-save.c`: specifies how often data is
+  written to disk; higher number = higher precision tracking; smaller number =
+  less storage space used
 
 
 ## alternatives
