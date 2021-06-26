@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from math import floor
 import subprocess
 
-# helper functions
+#   HELPER FUNCTIONS   #######################################################
 def filelocation():
     if (os.getenv("XDG_DATA_HOME")):
         return os.getenv("XDG_DATA_HOME") + "/timetracker/data"
@@ -19,26 +19,35 @@ def timestring(secs):
     else:
         return str(floor(secs % 60)) + "m"
 
-# command      -> array of args
-# inp (=stdin) -> string
-# returns stdout as string
-def runExternal(command, inp):
-    proc = subprocess.Popen(command, stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE)
-    proc.stdin.write(inp.encode("utf-8"))
-    proc.stdin.close()
-
-    while proc.returncode is None:
-        proc.poll()
-
-    return proc.stdout.read().decode("utf-8")
-
 # yellow and bold
 def printHeading(text):
     print("\033[33m\033[1m" + text + "\033[0m")
 
+# example: data = [["firefox", 75], ["vim", 250], ...]
+def printGraph(data):
+    # replace name with name and time in correct alignment
+    # 15 is enough space https://stackoverflow.com/questions/23534263/what-is-the-maximum-allowed-limit-on-the-length-of-a-process-name
+    for line in data:
+        line[0] = line[0].ljust(16, " ") + timestring(line[1]).rjust(5, " ")
+
+    width = 50;
+    # scale numbers on width
+    maximum = 0;
+    for line in data:
+        if (line[1] > maximum): maximum = line[1]
+    for line in data:
+        line[1] = round(line[1] / maximum * 50)
+
+    # print the graph
+    for line in data:
+        bar = ""
+        if (line[1] == 0): bar = "▏"
+        else: bar = "▇" * line[1]
+
+        print(line[0] + " " + bar)
 
 
+#   READ AND PARSE FILE   ####################################################
 # does not handle errors
 datafile = open(filelocation(), "r")
 
@@ -47,9 +56,10 @@ days = {}
 programs = []
 for line in datafile:
     parts = line.split(",");
-    if datetime.fromtimestamp(int(parts[0])).strftime("%Y-%m-%d") not in days:
-        days[datetime.fromtimestamp(int(parts[0])).strftime("%Y-%m-%d")] = {}
-    dayRef = days[datetime.fromtimestamp(int(parts[0])).strftime("%Y-%m-%d")]
+    datestring = datetime.fromtimestamp(int(parts[0])).strftime("%Y-%m-%d")
+    if datestring not in days:
+        days[datestring] = {}
+    dayRef = days[datestring]
 
     for part2 in parts[1:]:
         # print(part2)
@@ -62,9 +72,11 @@ for line in datafile:
         else:
             dayRef[program] = ptime
 
-# graphs
+
+#   PRINT GRAPHS   ###########################################################
+# past week
 printHeading("# past week")
-tgIn = "" # termgraph input
+tgIn = [] # graph input
 for i in range(7):
     day = (datetime.today() + timedelta(days=i-6)).strftime("%Y-%m-%d")
     daySum = 0
@@ -72,21 +84,17 @@ for i in range(7):
         for program in days[day]:
             if program != "slock" and program != "standby":
                 daySum += days[day][program]
-    tgIn += day + "      " + timestring(daySum).rjust(5, " ") + "," + \
-            str(daySum) + "\n"
-print(runExternal(["termgraph", "--label-before", "--no-values"], tgIn)[1:-2])
+    tgIn.append([day, daySum])
+printGraph(tgIn)
 
+# today
 today = datetime.today().strftime("%Y-%m-%d")
 if today in days:
     print()
     printHeading("# today")
-    tgIn = "" # termgraph input
+    tgIn = [] # graph input
     for program in sorted(days[today], key=lambda x: days[today][x],
             reverse=True):
         if days[today][program] >= 60:
-            # 15 is enough space https://stackoverflow.com/questions/23534263/what-is-the-maximum-allowed-limit-on-the-length-of-a-process-name
-            tgIn += program.ljust(15, " ") + " " + \
-                    timestring(days[today][program]).rjust(5, " ") + "," + \
-                    str(days[today][program]) + "\n"
-    print(runExternal(["termgraph", "--label-before", "--no-values"],
-        tgIn)[1:-2])
+            tgIn.append([program, days[today][program]])
+    printGraph(tgIn)

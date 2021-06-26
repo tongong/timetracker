@@ -15,7 +15,7 @@ This repository provides three programs:
   whenever it changes.
 
 - `timetracker-save` reads program names from `stdin` and saves time statistics
-  regularly to `~/.local/share/timetracker/data`
+  periodically to `~/.local/share/timetracker/data`
   (or `$XDG_DATA_HOME/timetracker/data`). Every line in this file contains a
   timestamp and a list of programs with their usage time (in seconds), for
   example:
@@ -24,7 +24,7 @@ This repository provides three programs:
   ```
 
 - `timetracker-report` is a python script which shows graphs of your usage
-  time. Requires [termgraph][1].
+  time.
 
 
 ## installation
@@ -42,6 +42,4 @@ timetracker | timetracker-save
 
 
 ## alternatives
-see https://github.com/ActivityWatch/activitywatch#feature-comparison
-
-[1]: https://github.com/mkaz/termgraph
+see <https://github.com/ActivityWatch/activitywatch#feature-comparison>
