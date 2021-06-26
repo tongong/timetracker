@@ -98,3 +98,21 @@ if today in days:
         if days[today][program] >= 60:
             tgIn.append([program, days[today][program]])
     printGraph(tgIn)
+
+# average
+print()
+printHeading("# average")
+# get total number of days
+dayNum = (datetime.today() - \
+        datetime.strptime(list(days.keys())[0], "%Y-%m-%d")).days + 1
+tgIn = [] # graph input
+for program in programs:
+    ptime = 0
+    for day in days:
+        for p in days[day]:
+            if p == program:
+                ptime += days[day][program] / dayNum
+    if ptime >= 60:
+        tgIn.append([program, ptime]);
+tgIn = sorted(tgIn, key=lambda x: x[1], reverse=True)
+printGraph(tgIn)
