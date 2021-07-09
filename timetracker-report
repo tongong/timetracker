@@ -48,8 +48,11 @@ def printGraph(data):
 
 
 #   READ AND PARSE FILE   ####################################################
-# does not handle errors
-datafile = open(filelocation(), "r")
+try:
+    datafile = open(filelocation(), "r")
+except FileNotFoundError:
+    print("data is file not there (yet)")
+    exit(1)
 
 # parse input file
 days = {}
