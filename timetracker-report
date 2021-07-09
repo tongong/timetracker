@@ -36,7 +36,7 @@ def printGraph(data):
     for line in data:
         if (line[1] > maximum): maximum = line[1]
     for line in data:
-        line[1] = round(line[1] / maximum * 50)
+        line[1] = round(line[1] / maximum * 50) if maximum != 0 else 0
 
     # print the graph
     for line in data:
